@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>520 情话炸弹</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Ma+Shan+Zheng&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #1a0010;
+      min-height: 100vh;
+      font-family: 'Noto Serif SC', serif;
+      overflow-x: hidden;
+    }
+
+    :root {
+      --rose: #ff2d6b;
+      --gold: #f5c842;
+      --cream: #fff5f0;
+      --deep: #1a0010;
+      --petal: #ff8fab;
+      --crimson: #c0133e;
+    }
+
+    canvas#bg {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 20px 60px;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 60px 20px 40px;
+    }
+
+    .badge {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--gold), #e8a820);
+      color: #1a0010;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      padding: 6px 18px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+    }
+
+    .title-520 {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: clamp(72px, 18vw, 140px);
+      color: var(--rose);
+      line-height: 0.9;
+      text-shadow: 0 0 40px rgba(255,45,107,0.5), 0 0 80px rgba(255,45,107,0.2);
+      letter-spacing: -4px;
+      margin-bottom: 10px;
+    }
+
+    .title-sub {
+      font-family: 'Ma Shan Zheng', cursive;
+      font-size: clamp(22px, 5vw, 36px);
+      color: var(--gold);
+      letter-spacing: 8px;
+      margin-bottom: 16px;
+    }
+
+    .title-desc {
+      color: rgba(255,255,255,0.5);
+      font-size: 14px;
+      letter-spacing: 2px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 12px;
+      margin: 32px 0 28px;
+      background: rgba(255,255,255,0.05);
+      padding: 6px;
+      border-radius: 50px;
+      border: 1px solid rgba(255,45,107,0.2);
+    }
+
+    .tab {
+      padding: 10px 24px;
+      border-radius: 50px;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.5);
+      font-family: 'Noto Serif SC', serif;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s;
+      letter-spacing: 1px;
+    }
+
+    .tab.active {
+      background: linear-gradient(135deg, var(--rose), var(--crimson));
+      color: white;
+      box-shadow: 0 4px 20px rgba(255,45,107,0.4);
+    }
+
+    .card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,45,107,0.2);
+      border-radius: 24px;
+      padding: 36px;
+      width: 100%;
+      max-width: 680px;
+      backdrop-filter: blur(20px);
+      display: none;
+    }
+
+    .card.active { display: block; }
+
+    .card-title {
+      font-family: 'Ma Shan Zheng', cursive;
+      font-size: 22px;
+      color: var(--gold);
+      letter-spacing: 3px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .style-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .chip {
+      padding: 7px 16px;
+      border-radius: 50px;
+      border: 1px solid rgba(255,45,107,0.35);
+      background: transparent;
+      color: rgba(255,255,255,0.65);
+      font-size: 13px;
+      cursor: pointer;
+      font-family: 'Noto Serif SC', serif;
+      transition: all 0.25s;
+      letter-spacing: 1px;
+    }
+
+    .chip.selected {
+      background: rgba(255,45,107,0.25);
+      border-color: var(--rose);
+      color: white;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .input-field {
+      flex: 1;
+      min-width: 120px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,45,107,0.25);
+      border-radius: 12px;
+      padding: 12px 16px;
+      color: white;
+      font-family: 'Noto Serif SC', serif;
+      font-size: 14px;
+      outline: none;
+      transition: border 0.3s;
+    }
+
+    .input-field::placeholder { color: rgba(255,255,255,0.3); }
+    .input-field:focus { border-color: var(--rose); }
+
+    .gen-btn {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--rose), #c0133e);
+      border: none;
+      border-radius: 14px;
+      color: white;
+      font-family: 'Ma Shan Zheng', cursive;
+      font-size: 18px;
+      letter-spacing: 3px;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 6px 30px rgba(255,45,107,0.35);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .gen-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 40px rgba(255,45,107,0.5);
+    }
+
+    .gen-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .result-box {
+      margin-top: 24px;
+      background: rgba(245,200,66,0.06);
+      border: 1px solid rgba(245,200,66,0.25);
+      border-radius: 16px;
+      padding: 24px;
+      position: relative;
+      min-height: 100px;
+      display: none;
+    }
+
+    .result-box.visible { display: block; }
+
+    .result-label {
+      font-size: 11px;
+      color: var(--gold);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .result-text {
+      font-family: 'Ma Shan Zheng', cursive;
+      font-size: 20px;
+      color: var(--cream);
+      line-height: 1.8;
+      letter-spacing: 1px;
+    }
+
+    .result-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      padding: 8px 18px;
+      border-radius: 50px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: transparent;
+      color: rgba(255,255,255,0.7);
+      font-size: 13px;
+      cursor: pointer;
+      font-family: 'Noto Serif SC', serif;
+      transition: all 0.25s;
+    }
+
+    .action-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+    .action-btn.copied { border-color: var(--gold); color: var(--gold); }
+
+    /* Wish Wall */
+    .wish-input-area {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .wish-textarea {
+      width: 100%;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,45,107,0.25);
+      border-radius: 14px;
+      padding: 14px 16px;
+      color: white;
+      font-family: 'Ma Shan Zheng', cursive;
+      font-size: 16px;
+      resize: none;
+      outline: none;
+      min-height: 80px;
+      transition: border 0.3s;
+      letter-spacing: 1px;
+    }
+
+    .wish-textarea::placeholder { color: rgba(255,255,255,0.25); }
+    .wish-textarea:focus { border-color: var(--petal); }
+
+    .wishes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px;
+      margin-top: 8px;
+    }
+
+    .wish-card {
+      background: linear-gradient(135deg, rgba(255,45,107,0.12), rgba(192,19,62,0.08));
+      border: 1px solid rgba(255,45,107,0.2);
+      border-radius: 16px;
+      padding: 18px;
+      position: relative;
+      animation: wishAppear 0.4s ease;
+    }
+
+    @keyframes wishAppear {
+      from { opacity: 0; transform: scale(0.85) translateY(10px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .wish-heart { font-size: 20px; margin-bottom: 8px; display: block; }
+    .wish-text {
+      font-family: 'Ma Shan Zheng', cursive;
+      font-size: 15px;
+      color: var(--cream);
+      line-height: 1.6;
+      letter-spacing: 1px;
+    }
+    .wish-from {
+      font-size: 11px;
+      color: rgba(245,200,66,0.6);
+      margin-top: 8px;
+      letter-spacing: 2px;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: rgba(255,255,255,0.25);
+      font-size: 14px;
+      padding: 30px;
+      letter-spacing: 2px;
+      grid-column: 1 / -1;
+    }
+
+    /* Meter */
+    #card-meter { text-align: center; }
+
+    .meter-names {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+
+    .vs-heart {
+      font-size: 28px;
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50%       { transform: scale(1.2); }
+    }
+
+    .meter-result { display: none; margin-top: 28px; }
+    .meter-result.visible { display: block; }
+
+    .meter-bar-wrap {
+      background: rgba(255,255,255,0.08);
+      border-radius: 50px;
+      height: 22px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .meter-bar-fill {
+      height: 100%;
+      border-radius: 50px;
+      background: linear-gradient(90deg, var(--rose), var(--gold));
+      transition: width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 0 20px rgba(255,45,107,0.5);
+      width: 0%;
+    }
+
+    .meter-score {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 80px;
+      color: var(--rose);
+      text-shadow: 0 0 30px rgba(255,45,107,0.5);
+      line-height: 1;
+      margin: 16px 0 8px;
+    }
+
+    .meter-verdict {
+      font-family: 'Ma Shan Zheng', cursive;
+      font-size: 22px;
+      color: var(--gold);
+      letter-spacing: 3px;
+      margin-bottom: 12px;
+    }
+
+    .meter-desc {
+      color: rgba(255,255,255,0.5);
+      font-size: 14px;
+      line-height: 1.8;
+      max-width: 380px;
+      margin: 0 auto 20px;
+    }
+
+    /* Loading dots */
+    .loading-dots {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .loading-dots span {
+      width: 8px; height: 8px;
+      background: var(--petal);
+      border-radius: 50%;
+      animation: dotBounce 1.2s ease-in-out infinite;
+    }
+    .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes dotBounce {
+      0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+      40%           { transform: translateY(-10px); opacity: 1; }
+    }
+
+    .copy-toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--gold);
+      color: #1a0010;
+      padding: 12px 28px;
+      border-radius: 50px;
+      font-family: 'Noto Serif SC', serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 100;
+    }
+    .copy-toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* wish publish btn inline */
+    .wish-pub-btn {
+      flex: 0 0 auto;
+      width: auto;
+      padding: 12px 24px;
+      font-size: 14px;
+    }
+
+    /* meter name fields */
+    .meter-name-field {
+      text-align: center;
+      max-width: 140px;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+
+<div class="page">
+  <!-- Hero -->
+  <div class="hero">
+    <div class="badge">5·20 情人节</div>
+    <div class="title-520">520</div>
+    <div class="title-sub">情话炸弹</div>
+    <div class="title-desc">今天，把爱说出口</div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" data-tab="gen">💌 情话生成</button>
+    <button class="tab" data-tab="wall">🌸 许愿墙</button>
+    <button class="tab" data-tab="meter">💘 缘分测试</button>
+  </div>
+
+  <!-- ===== 情话生成 ===== -->
+  <div class="card active" id="card-gen">
+    <div class="card-title">💌 AI 情话生成器</div>
+    <div class="style-chips" id="style-chips"></div>
+    <div class="input-row">
+      <input class="input-field" id="name1" placeholder="你的名字（选填）" />
+      <input class="input-field" id="name2" placeholder="TA的名字（选填）" />
+    </div>
+    <button class="gen-btn" id="gen-btn">✨ 生成专属情话</button>
+
+    <div class="result-box" id="result-box">
+      <div class="result-label">✦ 你的专属情话 ✦</div>
+      <div class="result-text" id="result-text"></div>
+      <div class="result-actions">
+        <button class="action-btn" id="copy-btn">📋 复制</button>
+        <button class="action-btn" id="regen-btn">🔄 换一句</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 许愿墙 ===== -->
+  <div class="card" id="card-wall">
+    <div class="card-title">🌸 520 许愿墙</div>
+    <div class="wish-input-area">
+      <textarea class="wish-textarea" id="wish-text" rows="3" placeholder="写下你的520心愿或祝福…"></textarea>
+      <div class="input-row">
+        <input class="input-field" id="wish-from" placeholder="署名（选填，默认匿名）" />
+        <button class="gen-btn wish-pub-btn" id="wish-pub-btn">🌹 发布</button>
+      </div>
+    </div>
+    <div class="wishes-grid" id="wishes-grid"></div>
+  </div>
+
+  <!-- ===== 缘分测试 ===== -->
+  <div class="card" id="card-meter">
+    <div class="card-title" style="justify-content:center">💘 缘分指数测试</div>
+    <div class="meter-names">
+      <input class="input-field meter-name-field" id="m1" placeholder="你的名字" />
+      <span class="vs-heart">💗</span>
+      <input class="input-field meter-name-field" id="m2" placeholder="TA的名字" />
+    </div>
+    <button class="gen-btn" id="meter-btn" disabled>🔮 测测缘分</button>
+
+    <div class="meter-result" id="meter-result">
+      <div class="meter-bar-wrap"><div class="meter-bar-fill" id="meter-bar"></div></div>
+      <div class="meter-score" id="meter-score"></div>
+      <div class="meter-verdict" id="meter-verdict"></div>
+      <div class="meter-desc" id="meter-desc"></div>
+      <button class="action-btn" id="meter-reset-btn">🔄 再测一次</button>
+    </div>
+  </div>
+</div>
+
+<div class="copy-toast" id="copy-toast">情话已复制，快去发给TA吧 💌</div>
+
+<div style="
+  position: fixed;
+  bottom: 16px;
+  right: 20px;
+  z-index: 50;
+  font-family: 'Noto Serif SC', serif;
+  font-size: 12px;
+  color: rgba(245,200,66,0.5);
+  letter-spacing: 2px;
+  pointer-events: none;
+">制作者 · lc</div>
+
+<script>
+// ─── Constants ───────────────────────────────────────────────
+const STYLE_OPTIONS = [
+  { label: "🌹 古典诗意", value: "古典诗意风格，使用文言文或引用古诗词" },
+  { label: "😂 搞笑甜蜜", value: "幽默搞笑但又甜蜜，带点可爱的俏皮话" },
+  { label: "🌊 深情款款", value: "深情真挚，感人肺腑，像电影台词一样" },
+  { label: "🎮 二次元",   value: "二次元动漫风格，像anime主角告白" },
+  { label: "🚀 科幻浪漫", value: "科幻风格，用星际、宇宙、物理等元素比喻爱情" },
+  { label: "📝 日常温柔", value: "平淡日常中的温柔，像发朋友圈的文案" },
+];
+
+const VERDICTS = [
+  [90, "💍 天造地设", "你们的缘分早在三生石上刻好了，此生注定相守，不离不弃。"],
+  [75, "💕 郎才女貌", "你们互相吸引，默契十足，是彼此最好的选择。"],
+  [60, "🌸 有缘千里", "缘分不浅，只需用心经营，爱情自会开花结果。"],
+  [45, "🎲 缘分待定", "缘分还在路上，但真心换真心，一切皆有可能。"],
+  [0,  "🌱 慢慢靠近", "距离产生美，多点时间了解对方，说不定有惊喜哦。"],
+];
+
+const PRESET_WISHES = [
+  { text: "愿天下有情人终成眷属",           from: "来自远方的祝福" },
+  { text: "今天是520，我想偷偷告诉你，喜欢你好久了", from: "某个暗恋的人" },
+  { text: "爱情不是找到完美的人，而是学会欣赏不完美的人", from: "哲学系同学" },
+];
+
+const HEARTS_EMOJI = ["💕","🌹","💘","🌸","✨","💖"];
+
+// ─── State ───────────────────────────────────────────────────
+let selectedStyle = STYLE_OPTIONS[0];
+let wishes = [...PRESET_WISHES];
+
+// ─── API helper ──────────────────────────────────────────────
+async function callClaude(prompt) {
+  const resp = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 1000,
+      messages: [{ role: "user", content: prompt }],
+    }),
+  });
+  const data = await resp.json();
+  return data.content.map(b => b.text || "").join("");
+}
+
+// ─── Loading dots helper ──────────────────────────────────────
+function loadingHTML() {
+  return `<span class="loading-dots"><span></span><span></span><span></span></span>`;
+}
+
+// ─── Tab switching ────────────────────────────────────────────
+document.querySelectorAll(".tab").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll(".card").forEach(c => c.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("card-" + btn.dataset.tab).classList.add("active");
+  });
+});
+
+// ─── Style chips ──────────────────────────────────────────────
+const chipsEl = document.getElementById("style-chips");
+STYLE_OPTIONS.forEach(opt => {
+  const btn = document.createElement("button");
+  btn.className = "chip" + (opt === selectedStyle ? " selected" : "");
+  btn.textContent = opt.label;
+  btn.addEventListener("click", () => {
+    selectedStyle = opt;
+    document.querySelectorAll(".chip").forEach(c => c.classList.remove("selected"));
+    btn.classList.add("selected");
+  });
+  chipsEl.appendChild(btn);
+});
+
+// ─── Generator ───────────────────────────────────────────────
+const genBtn    = document.getElementById("gen-btn");
+const regenBtn  = document.getElementById("regen-btn");
+const resultBox = document.getElementById("result-box");
+const resultText= document.getElementById("result-text");
+const copyBtn   = document.getElementById("copy-btn");
+const toast     = document.getElementById("copy-toast");
+
+async function generate() {
+  genBtn.disabled = true;
+  genBtn.innerHTML = loadingHTML();
+  resultBox.classList.remove("visible");
+
+  const name1 = document.getElementById("name1").value.trim();
+  const name2 = document.getElementById("name2").value.trim();
+
+  try {
+    const prompt = `今天是5月20日（520情人节）。请用「${selectedStyle.value}」，生成一段浪漫情话。
+${name1 ? `发送者叫：${name1}` : ""}
+${name2 ? `接收者叫：${name2}` : ""}
+要求：
+- 情话长度在60-120字之间
+- 有创意，有诗意，令人心动
+- 直接输出情话内容，不要任何解释或开场白
+- 结尾可以带"520"或"我爱你"等主题词`;
+    const text = await callClaude(prompt);
+    resultText.textContent = text.trim();
+  } catch (e) {
+    resultText.textContent = "生成失败了，但我爱你这三个字永远不会失败 ❤️";
+  }
+
+  genBtn.disabled = false;
+  genBtn.textContent = "✨ 生成专属情话";
+  resultBox.classList.add("visible");
+}
+
+genBtn.addEventListener("click", generate);
+regenBtn.addEventListener("click", generate);
+
+copyBtn.addEventListener("click", () => {
+  const text = resultText.textContent;
+  navigator.clipboard.writeText(text).catch(() => {});
+  copyBtn.textContent = "✓ 已复制";
+  copyBtn.classList.add("copied");
+  toast.classList.add("show");
+  setTimeout(() => {
+    copyBtn.textContent = "📋 复制";
+    copyBtn.classList.remove("copied");
+    toast.classList.remove("show");
+  }, 2500);
+});
+
+// ─── Wish Wall ───────────────────────────────────────────────
+function renderWishes() {
+  const grid = document.getElementById("wishes-grid");
+  grid.innerHTML = "";
+  if (wishes.length === 0) {
+    grid.innerHTML = `<div class="empty-state">还没有心愿，来第一个吧 🌸</div>`;
+    return;
+  }
+  wishes.forEach((w, i) => {
+    const card = document.createElement("div");
+    card.className = "wish-card";
+    card.innerHTML = `
+      <span class="wish-heart">${HEARTS_EMOJI[i % 6]}</span>
+      <div class="wish-text">${escHtml(w.text)}</div>
+      <div class="wish-from">— ${escHtml(w.from)}</div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+document.getElementById("wish-pub-btn").addEventListener("click", () => {
+  const text = document.getElementById("wish-text").value.trim();
+  if (!text) return;
+  const from = document.getElementById("wish-from").value.trim() || "匿名";
+  wishes = [{ text, from }, ...wishes];
+  document.getElementById("wish-text").value = "";
+  document.getElementById("wish-from").value = "";
+  renderWishes();
+});
+
+renderWishes();
+
+// ─── Meter ───────────────────────────────────────────────────
+const m1Input    = document.getElementById("m1");
+const m2Input    = document.getElementById("m2");
+const meterBtn   = document.getElementById("meter-btn");
+const meterResult= document.getElementById("meter-result");
+
+function checkMeterInputs() {
+  meterBtn.disabled = !(m1Input.value.trim() && m2Input.value.trim());
+}
+m1Input.addEventListener("input", checkMeterInputs);
+m2Input.addEventListener("input", checkMeterInputs);
+
+meterBtn.addEventListener("click", async () => {
+  const m1 = m1Input.value.trim();
+  const m2 = m2Input.value.trim();
+  if (!m1 || !m2) return;
+
+  meterBtn.disabled = true;
+  meterBtn.innerHTML = loadingHTML();
+  meterResult.classList.remove("visible");
+
+  let score, desc;
+  try {
+    const prompt = `你是一个有趣的爱情占卜师。
+请根据「${m1}」和「${m2}」这两个名字，计算他们的缘分指数（0-100的整数）。
+回复格式（严格JSON，不要任何其他内容）：
+{"score": 数字, "desc": "用一句有趣的话（30字以内）解释为什么是这个分数"}`;
+    const text = await callClaude(prompt);
+    const clean = text.replace(/```json|```/g, "").trim();
+    const parsed = JSON.parse(clean);
+    score = parsed.score;
+    desc  = parsed.desc;
+  } catch {
+    score = Math.floor(Math.random() * 40) + 55;
+    desc  = "缘分这东西，说不清道不明，但心动是真实的 💓";
+  }
+
+  const verdict = VERDICTS.find(v => score >= v[0]);
+  document.getElementById("meter-bar").style.width = "0%";
+  document.getElementById("meter-score").textContent = score + "%";
+  document.getElementById("meter-verdict").textContent = verdict?.[1] ?? "";
+  document.getElementById("meter-desc").textContent = desc || verdict?.[2] || "";
+
+  meterResult.classList.add("visible");
+  // animate bar after render
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      document.getElementById("meter-bar").style.width = score + "%";
+    });
+  });
+
+  meterBtn.disabled = false;
+  meterBtn.textContent = "🔮 测测缘分";
+});
+
+document.getElementById("meter-reset-btn").addEventListener("click", () => {
+  m1Input.value = "";
+  m2Input.value = "";
+  meterResult.classList.remove("visible");
+  meterBtn.disabled = true;
+});
+
+// ─── Floating hearts canvas ───────────────────────────────────
+(function () {
+  const canvas = document.getElementById("bg");
+  const ctx = canvas.getContext("2d");
+  let hearts = [];
+
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener("resize", resize);
+
+  function spawnHeart() {
+    hearts.push({
+      x:        Math.random() * canvas.width,
+      y:        canvas.height + 20,
+      size:     8 + Math.random() * 20,
+      speed:    0.4 + Math.random() * 0.8,
+      drift:    (Math.random() - 0.5) * 0.5,
+      opacity:  0.1 + Math.random() * 0.3,
+      rotation: Math.random() * Math.PI * 2,
+      rotSpeed: (Math.random() - 0.5) * 0.02,
+    });
+  }
+
+  function drawHeart(ctx, x, y, size) {
+    ctx.beginPath();
+    ctx.moveTo(x, y - size * 0.3);
+    ctx.bezierCurveTo(x, y - size, x - size, y - size, x - size, y - size * 0.3);
+    ctx.bezierCurveTo(x - size, y + size * 0.1, x, y + size * 0.6, x, y + size);
+    ctx.bezierCurveTo(x, y + size * 0.6, x + size, y + size * 0.1, x + size, y - size * 0.3);
+    ctx.bezierCurveTo(x + size, y - size, x, y - size, x, y - size * 0.3);
+    ctx.closePath();
+  }
+
+  let frame = 0;
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    frame++;
+    if (frame % 30 === 0) spawnHeart();
+
+    hearts = hearts.filter(h => h.y > -50);
+    for (const h of hearts) {
+      h.y        -= h.speed;
+      h.x        += h.drift;
+      h.rotation += h.rotSpeed;
+      ctx.save();
+      ctx.translate(h.x, h.y);
+      ctx.rotate(h.rotation);
+      ctx.globalAlpha = h.opacity;
+      ctx.fillStyle = `hsl(${340 + Math.random() * 20}, 80%, 60%)`;
+      drawHeart(ctx, 0, 0, h.size);
+      ctx.fill();
+      ctx.restore();
+    }
+    requestAnimationFrame(animate);
+  }
+  animate();
+})();
+</script>
+</body>
+</html>
